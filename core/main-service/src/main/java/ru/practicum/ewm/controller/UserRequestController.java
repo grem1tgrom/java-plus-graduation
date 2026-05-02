@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Pageable;
 import ru.practicum.ewm.core.exception.ConditionsException;
 import ru.practicum.ewm.core.exception.ConflictException;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;

@@ -190,7 +190,7 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventShortDto> findByUserId(Long userId, Pageable pageable) throws ConditionsException {
+    public List<EventShortDto> findByUserId(Long userId, Pageable pageable) {
         if (!userIsExist(userId)) {
             throw new NotFoundException("Пользователь не найден");
         }
