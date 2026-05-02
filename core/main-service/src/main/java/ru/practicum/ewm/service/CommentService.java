@@ -37,13 +37,13 @@ public class CommentService {
     private final CommentMapper commentMapper;
 
     @Transactional(readOnly = true)
-    public CommentDto findById(Long id) throws ConditionsException {
+    public CommentDto findById(Long id) {
         return commentMapper.toDto(getCommentOrThrow(id));
     }
 
     @Transactional
     @Validated(CreateValidation.class)
-    public CommentDto create(@Valid CommentUpdateDto entity, Long userId) throws ConditionsException {
+    public CommentDto create(@Valid CommentUpdateDto entity, Long userId) {
         var comment = Comment.builder()
                 .author(getUserOrThrow(userId))
                 .event(getEventOrThrow(entity.getEventId()))
