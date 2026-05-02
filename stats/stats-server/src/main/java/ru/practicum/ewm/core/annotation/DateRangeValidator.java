@@ -28,6 +28,7 @@ public class DateRangeValidator implements ConstraintValidator<DateRange, DateRa
             context.buildConstraintViolationWithTemplate(defaultMessage).addConstraintViolation();
             return false;
         }
+
         return true;
     }
 }

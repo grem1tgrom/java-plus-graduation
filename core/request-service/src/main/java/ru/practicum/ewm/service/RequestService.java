@@ -20,6 +20,7 @@ import ru.practicum.ewm.mapper.RequestMapper;
 import ru.practicum.ewm.model.Request;
 import ru.practicum.ewm.repository.RequestRepository;
 
+import javax.naming.ServiceUnavailableException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ public class RequestService {
     private final RequestRepository repository;
     private final RequestMapper mapper;
 
+
     @Transactional
     public ParticipationRequestDto create(Long userId, Long eventId) throws ConflictException {
         if (repository.findByEventIdAndRequesterId(eventId, userId).isPresent()) {
@@ -40,6 +42,8 @@ public class RequestService {
         }
 
         UserDto requester = userClient.getUserById(userId);
+
+
         if (requester == null) {
             throw new NotFoundException("Пользователь с id=" + userId + " не найден");
         }
@@ -70,26 +74,28 @@ public class RequestService {
                 .build();
 
         Boolean moderation = event.getRequestModeration();
-        if (Boolean.FALSE.equals(moderation) || event.getParticipantLimit() == 0) {
+        if (!moderation || event.getParticipantLimit() == 0) {
             request.setStatus(RequestStatus.CONFIRMED);
         }
-
         request = repository.save(request);
         log.info("Создан запрос, id = {}", request.getId());
         return mapper.toDto(request);
     }
 
-    @Transactional(readOnly = true)
-    public List<ParticipationRequestDto> getRequestsByUser(Long userId) {
-        UserDto user = userClient.getUserById(userId);
-        if (user == null) {
-            throw new NotFoundException("Пользователь с id=" + userId + " не найден");
-        }
 
+    @Transactional(readOnly = true)
+    public List<ParticipationRequestDto> getRequestsByUser(Long userId) throws ServiceUnavailableException {
+        UserDto user = userClient.getUserById(userId);
+        try {
+            userClient.getUserById(userId);
+        } catch (Exception e) {
+            throw new ServiceUnavailableException("user-service недоступен");
+        }
         return repository.findByRequesterId(userId).stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
+
 
     @Transactional
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) throws ConditionsException {
@@ -103,8 +109,9 @@ public class RequestService {
         request.setStatus(RequestStatus.CANCELED);
         request = repository.save(request);
         log.info("Отменен запрос id = {}", requestId);
-        return mapper.toDto(request);
+        return mapper.toDto(repository.save(request));
     }
+
 
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequestsForEventOwner(Long ownerId, Long eventId) throws ConditionsException, ConflictException {
@@ -117,22 +124,21 @@ public class RequestService {
         if (!Objects.equals(event.getInitiator().getId(), ownerId)) {
             throw new ConditionsException("Только владелец мероприятия может просматривать запросы на это мероприятие");
         }
-
         return repository.findByEventId(eventId).stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
+
 
     @Transactional
     public EventRequestStatusUpdateResult updateRequestStatus(
             Long ownerId,
             Long eventId,
             EventRequestStatusUpdateRequest updateDto) throws ConditionsException, ConflictException {
-
         EventFullDto event = eventClient.getEventById(eventId);
 
         if (!Objects.equals(event.getInitiator().getId(), ownerId)) {
-            throw new ConditionsException("Только владелец мероприятия может изменять статус запрос��");
+            throw new ConditionsException("Только владелец мероприятия может изменять статус запроса");
         }
 
         if (updateDto.getRequestIds() == null || updateDto.getRequestIds().isEmpty()) {
@@ -157,7 +163,6 @@ public class RequestService {
 
         List<Request> requests =
                 repository.findAllByIdInAndStatus(updateDto.getRequestIds(), RequestStatus.PENDING);
-
         Map<Long, Request> map = requests.stream()
                 .collect(Collectors.toMap(Request::getId, r -> r));
 

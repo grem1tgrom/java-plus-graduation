@@ -1,84 +1,60 @@
 services:
-  discovery-server:
-    build: ./infra/discovery-server
-    container_name: discovery-server
-    ports:
-      - "8761:8761"
-
-  config-server:
-    build: ./infra/config-server
-    container_name: config-server
-    depends_on:
-      - discovery-server
-    environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-    ports:
-      - "8888:8888"
-
-  gateway-server:
-    build: ./infra/gateway-server
-    container_name: gateway-server
-    depends_on:
-      - discovery-server
-      - config-server
-    environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      SPRING_CLOUD_CONFIG_DISCOVERY_ENABLED: "true"
-      SPRING_CLOUD_CONFIG_DISCOVERY_SERVICE_ID: config-server
-    ports:
-      - "8080:8080"
-
   stats-db:
     image: postgres:16.1
     container_name: stats-db
+    ports:
+      - "5433:5432"
     environment:
       POSTGRES_DB: stats-db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports:
-      - "5433:5432"
 
-  stats-server:
-    build: ./stats/stats-server
-    container_name: stats-server
-    depends_on:
-      - discovery-server
-      - config-server
-      - stats-db
-    environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      SPRING_CLOUD_CONFIG_DISCOVERY_ENABLED: "true"
-      SPRING_CLOUD_CONFIG_DISCOVERY_SERVICE_ID: config-server
-      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats-db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+  main-db:
+    image: postgres:16.1
+    container_name: main-db
     ports:
-      - "9090:9090"
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: main-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  comment-db:
+    image: postgres:16.1
+    container_name: comment-db
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_DB: comment-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  event-db:
+    image: postgres:16.1
+    container_name: event-db
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_DB: event-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  request-db:
+    image: postgres:16.1
+    container_name: request-db
+    ports:
+      - "5437:5432"
+    environment:
+      POSTGRES_DB: request-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
 
   user-db:
     image: postgres:16.1
     container_name: user-db
+    ports:
+      - "5438:5432"
     environment:
       POSTGRES_DB: user-db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports:
-      - "5438:5432"
-
-  user-service:
-    build: ./core/user-service
-    container_name: user-service
-    depends_on:
-      - discovery-server
-      - config-server
-      - user-db
-      - stats-server
-    environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      SPRING_CLOUD_CONFIG_DISCOVERY_ENABLED: "true"
-      SPRING_CLOUD_CONFIG_DISCOVERY_SERVICE_ID: config-server
-      SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/user-db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-    ports:
-      - "8081:8080"

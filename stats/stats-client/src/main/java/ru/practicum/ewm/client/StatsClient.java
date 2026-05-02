@@ -53,8 +53,9 @@ public class StatsClient {
             log.warn("Eureka недоступна, fallback на statsServerUrl: {}", statsServerUrl);
             uri = URI.create(statsServerUrl + "/hit");
         }
+
         log.info("Отправка запроса saveHit: url={}, body={}", uri, hitDto);
-        restTemplate.postForLocation(uri, hitDto);
+        restTemplate.postForLocation(uri, hitDto); // POST без тела ответа
         log.info("Hit был сохранен");
     }
 

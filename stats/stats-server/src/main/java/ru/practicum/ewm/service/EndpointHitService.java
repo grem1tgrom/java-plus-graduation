@@ -20,7 +20,6 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 public class EndpointHitService {
-
     private final EndpointHitMapper mapper;
     private final EndpointHitRepository repository;
 
@@ -35,9 +34,7 @@ public class EndpointHitService {
     @Transactional(readOnly = true)
     public List<ViewStatsDto> findStats(@Valid StatsFilter filter) {
         log.info("Получить запись статистки (старт). filter: {}", filter);
-        var result = filter.getUnique()
-                ? repository.findStatsByUnique(filter)
-                : repository.findStatsByNonUnique(filter);
+        var result = filter.getUnique() ? repository.findStatsByUnique(filter) : repository.findStatsByNonUnique(filter);
         log.info("Получить запись статистки (стоп). filter: {}; записей в ответе: {}", filter, result.size());
         return result;
     }
