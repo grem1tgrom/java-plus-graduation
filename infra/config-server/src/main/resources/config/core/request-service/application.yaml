@@ -1,12 +1,13 @@
 server:
   port: 0
 
-stats-server:
-  url: ${CLIENT_URL:http://localhost:9090}
-
 spring:
   application:
-    name: main-service
+    name: request-service
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
 
   mvc:
     format:
@@ -26,9 +27,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/main-db}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    url: jdbc:postgresql://localhost:5437/request-db
+    username: postgres
+    password: postgres
 
   jpa:
     hibernate:
@@ -36,8 +37,11 @@ spring:
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
-logging:
-  level:
-    org:
-      zalando:
-        logbook: trace
+feign:
+  circuitbreaker:
+    enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
