@@ -27,7 +27,7 @@ public class AdminEventController {
     @GetMapping
     public List<EventFullDto> find(
             @ParameterObject @Valid EventsFilter filter,
-            @PageableDefault(page = 0, size = 10) Pageable pageable) {
+            @PageableDefault(size = 10) Pageable pageable) {
         return service.findAdminEventsWithFilter(filter, pageable);
     }
 
