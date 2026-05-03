@@ -20,7 +20,7 @@ public class RestTemplateConfig {
         RetryTemplate retryTemplate = new RetryTemplate();
 
         FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
-        backOffPolicy.setBackOffPeriod(3000L);
+        backOffPolicy.setBackOffPeriod(3000L); // 3 секунды
         retryTemplate.setBackOffPolicy(backOffPolicy);
 
         SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();

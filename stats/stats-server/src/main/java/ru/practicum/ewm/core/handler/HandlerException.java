@@ -25,6 +25,7 @@ public class HandlerException {
                 .body(new ErrorMessage(exception.getMessage()));
     }
 
+
     @ExceptionHandler(ConditionsException.class)
     public ResponseEntity<ErrorMessage> conditionsException(ConditionsException exception) {
         log.error(exception.getMessage(), exception);
@@ -54,6 +55,7 @@ public class HandlerException {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessage> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+
         String errorMessage = exception.getBindingResult()
                 .getFieldErrors()
                 .stream()
