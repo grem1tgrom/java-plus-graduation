@@ -12,10 +12,11 @@ import ru.practicum.ewm.core.annotation.DateRangeAware;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
 @Builder(toBuilder = true)
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+
 @DateRange
 public class StatsFilter implements DateRangeAware {
 
@@ -28,15 +29,6 @@ public class StatsFilter implements DateRangeAware {
     private LocalDateTime end;
 
     private List<String> uris;
+
     private Boolean unique = false;
-
-    @Override
-    public LocalDateTime getStart() {
-        return start;
-    }
-
-    @Override
-    public LocalDateTime getEnd() {
-        return end;
-    }
 }
